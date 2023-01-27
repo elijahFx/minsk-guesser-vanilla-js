@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="geoguesser.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <title>Yandex GeoGuesser</title>
+</head>
+<body>
+  <div class="loader-wrapper">
+    <span class="loader"><span class="loader-inner"></span></span>
+  </div>
+  <div class="container">
+    <div class="shadowBox">
+      <button class="one button"></button>
+      <button class="two button"></button>
+      <button class="three button"></button>
+    </div>
+    <div id="map" class="mapNotTouched"></div>
+    <button class="submitBtn">Поместите булавку на карту</button>
+</div>
+  
+  <div id="app"></div>
+  
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=b758d8a7-6b04-428a-8075-287f16ed6f8d&lang=ru_RU"></script>
+  <script src="geoguesser.js"></script>
+  <script src="randomCoords.js" type="module"></script>
+</body>
+</html>
