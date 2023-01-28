@@ -4,6 +4,20 @@ document.addEventListener("load", () => {
   loader.remove()
 })
 
+setInterval(() => {
+  const app = document.querySelector("#app")
+  const HTMLymaps = app.querySelector("ymaps")
+  const HTMLymaps2 = HTMLymaps.querySelector("ymaps")
+  const HTMLymaps3 = HTMLymaps2.querySelectorAll("ymaps")[1]
+  if(HTMLymaps3) {
+  HTMLymaps2.removeChild(HTMLymaps3)
+}
+}, 100)
+
+let distance
+let coords
+let panoramaCoords
+let isPin = false
 const submitBtn = document.querySelector(".submitBtn")
 
 function init() {
@@ -20,9 +34,11 @@ function init() {
   })
 
   map.events.add("click", function (e) {
-    if(!map.balloon.isOpen()) {
-      
-      let coords = e.get('coords');
+    if(isPin) {
+      map.geoObjects.remove(myPlacemark)
+    } 
+    
+         coords = e.get('coords');
             
         
          myPlacemark = new ymaps.Placemark(coords, {
@@ -32,24 +48,22 @@ function init() {
     
                   iconImageHref: 'pin.png',
 
-                  iconImageSize: [40, 40],
+                  iconImageSize: [36, 36],
             
-                  iconImageOffset: [-21, -38]
+                  iconImageOffset: [-19, -34]
               }),
         
              
-        
+          isPin = true    
           map.geoObjects.add(myPlacemark)
           submitBtn.innerText = "УГАДАТЬ"  
           submitBtn.style.backgroundColor = "#7EB644"  
 
-    } else {
-      map.geoObjects.remove()
     }
 
 
 
-  })
+  )
 
 let isPinned = false
 const containerElement = document.querySelector(".container")
@@ -80,6 +94,46 @@ const shadowBox = document.querySelector(".shadowBox")
   expandBtn.addEventListener("click", enter)
 
   hideBtn.addEventListener("click", leave)
+
+  submitBtn.addEventListener("click", () => {
+    if(isPin) {
+
+
+    let truePlacemark = new ymaps.Placemark(panoramaCoords, {
+        hintContent: `${panoramaCoords}`}, {
+      
+        iconLayout: 'default#image',
+
+        iconImageHref: 'finish.png',
+
+        iconImageSize: [30, 30],
+  
+        iconImageOffset: [-15, -30]
+    })
+
+    map.geoObjects.add(truePlacemark)
+
+
+    let connectLine = [coords, panoramaCoords]
+
+    let line = map.geoObjects.add(new ymaps.Polyline(connectLine))
+
+    let lineStringGeometry = new ymaps.geometry.LineString(connectLine)
+    let geoObj = new ymaps.GeoObject({ geometry: lineStringGeometry })
+    map.geoObjects.add(geoObj);
+    distance = Math.floor(geoObj.geometry.getDistance())
+    alert(`Расстояние от заданной точки составляет: ${distance} метров`)
+
+    
+    
+
+      let differenceX = Math.abs(coords[0] - panoramaCoords[0])
+      let differenceY = Math.abs(coords[1] - panoramaCoords[1])
+      let finalDifference = differenceX - differenceY
+    } else {
+      return
+    }
+  })
 
   setInterval(() => {
     map.container.fitToViewport()
@@ -113,7 +167,7 @@ ymaps.ready(function () {
       return;
   }
   // Ищем панораму в переданной точке.
-  ymaps.panorama.locate(getRandomCoords()).done(
+ let Panorama = ymaps.panorama.locate(getRandomCoords()).done(
       function (panoramas) {
           // Убеждаемся, что найдена хотя бы одна панорама. АСНЛ = 53.851797, 27.551390
           if (panoramas.length > 0) {
@@ -136,14 +190,18 @@ ymaps.ready(function () {
                   )
                   // Заставляет маркеры не работать 
             player.events.add("markerexpand", (marker) => {
-              //marker.remove()
-            })      
+                marker.remove()
+            })     
+            
+            player.events.add("panoramachange", (pan) => {
+              panoramaCoords = pan.originalEvent.target._engine._panorama._position.slice(0, 2).reverse()
+              
+            })
 
-          }
-      },
-      function (error) {
-          // Если что-то пошло не так, сообщим об этом пользователю.
-          alert(error.message);
+            // Получаю координаты панорамы (т.е. в каком именно месте мы находимся прямо сейчас)
+            panoramaCoords = [panoramas[0]._position[0], panoramas[0]._position[1]].reverse()
+
+          } else { window.location.reload() }
       }
   );
 
@@ -162,20 +220,6 @@ ymaps.ready(function () {
 
     })
 
-
-
-
-
-    
-setInterval(() => {
-  const app = document.querySelector("#app")
-  const HTMLymaps = app.querySelector("ymaps")
-  const HTMLymaps2 = HTMLymaps.querySelector("ymaps")
-  const HTMLymaps3 = HTMLymaps2.querySelectorAll("ymaps")[1]
-  if(HTMLymaps3) {
-  HTMLymaps2.removeChild(HTMLymaps3)
-}
-}, 100)
 
 
 
