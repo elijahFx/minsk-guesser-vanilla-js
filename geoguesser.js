@@ -1,8 +1,19 @@
+const loader = document.querySelector(".loader-wrapper")
+const body = document.querySelector("body")
+
 document.addEventListener("load", () => {
-  const loader = document.querySelector(".loader-wrapper")
-  loader.classList.remove("loader-wrapper")
-  loader.remove()
+  loader.style.zIndex = "15"
 })
+
+document.addEventListener("loadstart", () => {
+  loader.style.zIndex = "15"
+})
+
+loader.style.zIndex = "15"
+
+setTimeout(() => {
+  loader.style.zIndex = "2"
+}, 1000)
 
 setInterval(() => {
   const app = document.querySelector("#app")
@@ -14,11 +25,21 @@ setInterval(() => {
 }
 }, 100)
 
+let grades = []
+let round = 0
 let distance
 let coords
 let panoramaCoords
 let isPin = false
+let notificationContainer = document.createElement("div")
+    notificationContainer.classList.add("notificationContainer")
+    body.appendChild(notificationContainer)
 const submitBtn = document.querySelector(".submitBtn")
+const roundElement = document.querySelector("#roundElement")
+const pointsElement = document.querySelector("#pointsElement")
+
+const infoBox = document.querySelector(".infoBox")
+
 
 function init() {
   let map = new ymaps.Map("map", {
@@ -28,6 +49,7 @@ function init() {
   })
 
   let cursor = map.cursors.push('arrow')
+  
 
   map.events.add("dragstart", () => {
     cursor.push("drag")
@@ -65,6 +87,9 @@ function init() {
 
   )
 
+  map.panTo([53.908396, 27.558948])
+
+
 let isPinned = false
 const containerElement = document.querySelector(".container")
 
@@ -96,8 +121,9 @@ const shadowBox = document.querySelector(".shadowBox")
   hideBtn.addEventListener("click", leave)
 
   submitBtn.addEventListener("click", () => {
-    if(isPin) {
+    if(isPin && round < 5) {
 
+    round = round + 1 
 
     let truePlacemark = new ymaps.Placemark(panoramaCoords, {
         hintContent: `${panoramaCoords}`}, {
@@ -116,28 +142,70 @@ const shadowBox = document.querySelector(".shadowBox")
 
     let connectLine = [coords, panoramaCoords]
 
-    let line = map.geoObjects.add(new ymaps.Polyline(connectLine))
+  
+
+    let line = new ymaps.Polyline(connectLine)
+ 
+
+
+
+    map.geoObjects.add(line)
 
     let lineStringGeometry = new ymaps.geometry.LineString(connectLine)
     let geoObj = new ymaps.GeoObject({ geometry: lineStringGeometry })
     map.geoObjects.add(geoObj);
     distance = Math.floor(geoObj.geometry.getDistance())
-    alert(`Расстояние от заданной точки составляет: ${distance} метров`)
+    map.panTo(panoramaCoords)
+
+    if(distance <= 150) {
+      grades.push(10)
+    } else if(distance > 150 && distance <= 350) {
+      grades.push(9)
+    } else if(distance > 350 && distance <= 550) {
+      grades.push(8)
+    } else if(distance > 550 && distance <= 1000) {
+      grades.push(7)
+    } else if(distance > 1000 && distance <= 1700) {
+      grades.push(6)
+    } else if(distance > 1700 && distance <= 2700) {
+      grades.push(5)
+    } else if(distance > 2700 && distance <= 4000) {
+      grades.push(4)
+    } else if(distance > 4000 && distance <= 6000) {
+      grades.push(3)
+    } else if(distance > 6000 && distance <= 8000) {
+      grades.push(2)
+    } else if(distance > 8000 && distance <= 9000) {
+      grades.push(1)
+    } else {
+      grades.push(0)
+    }
+
+    evaluate()
+    endGame()
+    
+    submitBtn.innerText = "ПОМЕСТИТЕ БУЛАВКУ НА КАРТУ"  
+    submitBtn.style.backgroundColor = "rgba(0,0,0,0.5)" 
 
     
+    isPin = false
+    roundElement.innerText = `${round} / 5`
+    
+    containerElement.removeEventListener("mouseleave", leave)
+    isPinned = true
+    pinBtn.style.outline = "black solid 2px"
+
+    createNotification(distance)
     
 
-      let differenceX = Math.abs(coords[0] - panoramaCoords[0])
-      let differenceY = Math.abs(coords[1] - panoramaCoords[1])
-      let finalDifference = differenceX - differenceY
     } else {
       return
     }
   })
 
-  setInterval(() => {
+   setInterval(() => {
     map.container.fitToViewport()
-  }, 500)
+  }, 1)
 
   function enter () {
     mapElement.classList.add("mapTouched")
@@ -149,85 +217,165 @@ const shadowBox = document.querySelector(".shadowBox")
     mapElement.classList.remove("mapTouched")
   }
 
-  
-
-
-
-}
-
-
-ymaps.ready(init)
-
-
-
-ymaps.ready(function () {
-  // Для начала проверим, поддерживает ли плеер браузер пользователя.
-  if (!ymaps.panorama.isSupported()) {
-      // Если нет, то просто ничего не будем делать.
-      return;
+  function evaluate () {
+    let sum = 0
+    for(let i = 0; i<grades.length; i++) {
+      sum = sum + grades[i]
+    }
+    let average = (Math.floor((sum / grades.length) * 100) / 100)
+    let finalGrade
+    if(average === 1) {
+        pointsElement.style.color = "white"
+        finalGrade = `${average} балл`
+    } else if(average >= 2 && average <= 4) {
+        finalGrade = `${average} балла`
+        pointsElement.style.color = "white"
+    } else if(average >= 9.5) {
+        pointsElement.style.color = "gold"
+        finalGrade = `${average} баллов`
+    } else if(average >= 8.5) {
+        pointsElement.style.color = "silver"
+        finalGrade = `${average} баллов`
+    } else if(average >= 7.5) {
+        finalGrade = `${average} баллов`
+        pointsElement.style.color = "bronze"
+    } else {
+        finalGrade = `${average} баллов`
+       pointsElement.style.color = "white"
+    }
+    pointsElement.innerText = finalGrade
   }
-  // Ищем панораму в переданной точке.
- let Panorama = ymaps.panorama.locate(getRandomCoords()).done(
-      function (panoramas) {
-          // Убеждаемся, что найдена хотя бы одна панорама. АСНЛ = 53.851797, 27.551390
-          if (panoramas.length > 0) {
-              // Создаем плеер с одной из полученных панорам.
-             var player = new ymaps.panorama.Player(
-                      'app',
-                      // Панорамы в ответе отсортированы по расстоянию
-                      // от переданной в panorama.locate точки. Выбираем первую,
-                      // она будет ближайшей.
-                      panoramas[0],
 
-                      // Зададим направление взгляда, отличное от значения
-                      // по умолчанию.
-                      { suppressMapOpenBlock: true,
-                        direction: [256, 16],
-                        suppressMapOpenBlock: true,
-                        controls: ["panoramaName"],
-                        hotkeysEnabled: true }
+  function endGame () {
+    if(round >= 5) {
+      let logoElement = document.createElement("img")
+      logoElement.setAttribute("src", "/geo/geo/yandexGeoguesser/minsk-logo-220.png")
+      let blackScreen1 = document.createElement("div")
+      blackScreen1.appendChild(logoElement)
+      let blackScreen2 = document.createElement("div")
+      blackScreen1.classList.add("blackScreen1")
+      blackScreen2.classList.add("blackScreen2")
+      body.appendChild(blackScreen1)
+      body.appendChild(blackScreen2)
+      submitBtn.remove()
+      shadowBox.remove()
+      infoBox.remove()
+      containerElement.classList.remove("container")
+      containerElement.classList.add("containerEnd")
+      mapElement.classList.remove("mapTouched")
+      mapElement.classList.remove("mapNotTouched")
+      mapElement.classList.add("mapEnd")
+    }
+  }
 
-                  )
-                  // Заставляет маркеры не работать 
-            player.events.add("markerexpand", (marker) => {
-                marker.remove()
-            })     
-            
-            player.events.add("panoramachange", (pan) => {
-              panoramaCoords = pan.originalEvent.target._engine._panorama._position.slice(0, 2).reverse()
-              
-            })
+  function createNotification(distance) {
+    let notification = document.createElement("div")
+    notification.classList.add("notification")
+    let x = document.createElement("span")
+    x.classList.add("material-symbols-outlined")
+    x.innerHTML = "check"
+    x.addEventListener("click", () => {
+      notification.remove()
+    })
+    let textContent = document.createElement("h5")
+    textContent.classList.add("textContent")
+    textContent.innerHTML = `Вы оказались в <span class="outlineText">${distance} м.</span> от заданной точки`
+    notification.appendChild(x)
+    notification.appendChild(textContent)
+    notificationContainer.appendChild(notification)
+    setTimeout(() => {
+      notification.remove()
+    }, 6000)
+  }
 
-            // Получаю координаты панорамы (т.е. в каком именно месте мы находимся прямо сейчас)
-            panoramaCoords = [panoramas[0]._position[0], panoramas[0]._position[1]].reverse()
+  
+  ymaps.ready(function () {
+    // Для начала проверим, поддерживает ли плеер браузер пользователя.
+    if (!ymaps.panorama.isSupported()) {
+        // Если нет, то просто ничего не будем делать.
+        return;
+    }
+    // Ищем панораму в переданной точке.
+   let Panorama = ymaps.panorama.locate(getRandomCoords()).done(
+        function (panoramas) {
+            // Убеждаемся, что найдена хотя бы одна панорама. АСНЛ = 53.851797, 27.551390
+            if (panoramas.length > 0) {
+                // Создаем плеер с одной из полученных панорам.
+               var player = new ymaps.panorama.Player(
+                        'app',
+                        // Панорамы в ответе отсортированы по расстоянию
+                        // от переданной в panorama.locate точки. Выбираем первую,
+                        // она будет ближайшей.
+                        panoramas[0],
+  
+                        // Зададим направление взгляда, отличное от значения
+                        // по умолчанию.
+                        { suppressMapOpenBlock: true,
+                          direction: [256, 16],
+                          suppressMapOpenBlock: true,
+                          controls: ["panoramaName"],
+                          hotkeysEnabled: true }
+  
+                    )
+                    // Заставляет маркеры не работать 
+              player.events.add("markerexpand", (marker) => {
+                  marker.remove()
+              })     
+              // Получаю координаты панорамы (т.е. в каком именно месте мы находимся прямо сейчас)
+              player.events.add("panoramachange", (pan) => {
+                panoramaCoords = pan.originalEvent.target._engine._panorama._position.slice(0, 2).reverse()
+              })
+  
+              // Получаю координаты панорамы
+              panoramaCoords = [panoramas[0]._position[0], panoramas[0]._position[1]].reverse()
 
-          } else { window.location.reload() }
-      }
-  );
 
-  function getRandomCoords () {
-    let leftTop = [53.945763, 27.460391]
-    let leftBottom = [53.849329, 27.460391]
-    let rightBottom = [53.849329, 27.654925]
-    let rightTop = [53.944513, 27.654925]
+              function panoramaMove() {
+                if(round < 5) {
+                  loader.style.zIndex = "13"
+                  setTimeout(() => {
+                  loader.style.zIndex = "0"  
+                  }, 1000)
+                  
+                  player.moveTo(getRandomCoords())
+                    if(panoramas.length > 1) {
+                      console.log(panoramas.length)
+                      player.moveTo(getRandomCoords())
+                    } else {
+                      console.log(panoramas.length)
+                      player.moveTo(getRandomCoords())
+                      return
+                    }
+                } else {
+                  return
+                }
+              }
 
-    let randomCoordX = 53.849329 + Math.random() * (53.945763 + 0.00001 - 53.849329)
-    let randomCoordY = 27.460391 + Math.random() * (27.654925 + 0.00001 - 27.460391)
+              submitBtn.addEventListener("click", panoramaMove)
+  
+            } else { window.location.reload() }
+        }
+    );
+  
+    function getRandomCoords () {
+      let leftTop = [53.945763, 27.460391]
+      let leftBottom = [53.849329, 27.460391]
+      let rightBottom = [53.849329, 27.654925]
+      let rightTop = [53.944513, 27.654925]
+  
+      let randomCoordX = 53.849329 + Math.random() * (53.945763 + 0.00001 - 53.849329)
+      let randomCoordY = 27.460391 + Math.random() * (27.654925 + 0.00001 - 27.460391)
+  
+      let finalCoord = [randomCoordX, randomCoordY]
+      return finalCoord
+  }
 
-    let finalCoord = [randomCoordX, randomCoordY]
-    return finalCoord
+  
+  
+      })
+
+
 }
 
-    })
 
-
-
-
-
-// coords[0].toPrecision(6),
-// coords[1].toPrecision(6)
-
-
-
-
-      
+ymaps.ready(init)      
