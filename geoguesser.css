@@ -10,7 +10,7 @@ body {
 
 @font-face {
   font-family: "Bebas";
-  src: url("/geo/geo/yandexGeoguesser/BebasNeue.ttf");
+  src: url("/geo/geo/yandexGeoguesser/assets/BebasNeue.ttf");
 }
 
 #app {
@@ -123,7 +123,7 @@ body {
   background-position: 2px 6px;
   background-repeat: no-repeat;
   background-size: 25px;
-  background-image: url("/geo/geo/yandexGeoguesser/arrow.png");
+  background-image: url("/geo/geo/yandexGeoguesser/assets/arrow.png");
 }
 
 .two {
@@ -131,14 +131,14 @@ body {
   background-position: 2px 6px;
   background-repeat: no-repeat;
   background-size: 25px;
-  background-image: url("/geo/geo/yandexGeoguesser/arrow.png");
+  background-image: url("/geo/geo/yandexGeoguesser/assets/arrow.png");
 }
 
 .three {
   background-position: 7px 5px;
   background-repeat: no-repeat;
   background-size: 19px;
-  background-image: url("/geo/geo/yandexGeoguesser/pin2.png");
+  background-image: url("/geo/geo/yandexGeoguesser/assets/pin2.png");
 }
 
 .hide {

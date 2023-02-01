@@ -72,7 +72,7 @@ function init() {
                 
                   iconLayout: 'default#image',
     
-                  iconImageHref: 'pin.png',
+                  iconImageHref: 'assets/pin.png',
 
                   iconImageSize: [36, 36],
             
@@ -135,7 +135,7 @@ const shadowBox = document.querySelector(".shadowBox")
       
         iconLayout: 'default#image',
 
-        iconImageHref: 'finish.png',
+        iconImageHref: 'assets/finish.png',
 
         iconImageSize: [30, 30],
   
@@ -261,7 +261,7 @@ const shadowBox = document.querySelector(".shadowBox")
       progress.innerHTML = "0%"
       progressElement.appendChild(progress)
       let logoElement = document.createElement("img")
-      logoElement.setAttribute("src", "/geo/geo/yandexGeoguesser/minsk-logo-220.png")
+      logoElement.setAttribute("src", "/geo/geo/yandexGeoguesser/assets/minsk-logo-220.png")
       logoElement.classList.add("logo")
       let blackScreen1 = document.createElement("div")
       blackScreen1.appendChild(logoElement)
