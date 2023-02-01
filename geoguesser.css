@@ -110,7 +110,13 @@ body {
   border-radius: 50%;
   height: 30px;
   width: 30px;
+  font-size: 15px;
+  color: rgb(255, 0, 0);
 }
+
+
+
+
 
 .one {
   transform: rotate(225deg);

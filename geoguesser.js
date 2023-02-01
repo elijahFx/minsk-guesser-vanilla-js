@@ -395,6 +395,7 @@ const shadowBox = document.querySelector(".shadowBox")
               })     
               // Получаю координаты панорамы (т.е. в каком именно месте мы находимся прямо сейчас)
               player.events.add("panoramachange", (pan) => {
+                
                 panoramaCoords = pan.originalEvent.target._engine._panorama._position.slice(0, 2).reverse()
               })
   
@@ -410,9 +411,10 @@ const shadowBox = document.querySelector(".shadowBox")
                   }, 1000)
                   
                   player.moveTo(getRandomCoords())
-                    if(panoramas.length > 1) {
+                    if(panoramaCoords === coords) {
                       player.moveTo(getRandomCoords())
                     } else {
+                      console.log("third");
                       player.moveTo(getRandomCoords())
                       return
                     }
