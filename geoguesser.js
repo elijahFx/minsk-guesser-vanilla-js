@@ -25,6 +25,10 @@ setInterval(() => {
 }
 }, 100)
 
+
+let average
+let finalGrade = 0
+let i = 0
 let grades = []
 let round = 0
 let distance
@@ -121,6 +125,7 @@ const shadowBox = document.querySelector(".shadowBox")
   hideBtn.addEventListener("click", leave)
 
   submitBtn.addEventListener("click", () => {
+
     if(isPin && round < 5) {
 
     round = round + 1 
@@ -184,7 +189,7 @@ const shadowBox = document.querySelector(".shadowBox")
     evaluate()
     endGame()
     
-    submitBtn.innerText = "ПОМЕСТИТЕ БУЛАВКУ НА КАРТУ"  
+    submitBtn.innerText = "ПОПРОБОВАТЬ ДРУГУЮ ЛОКАЦИЮ"  
     submitBtn.style.backgroundColor = "rgba(0,0,0,0.5)" 
 
     
@@ -202,6 +207,8 @@ const shadowBox = document.querySelector(".shadowBox")
       return
     }
   })
+
+  
 
    setInterval(() => {
     map.container.fitToViewport()
@@ -222,8 +229,7 @@ const shadowBox = document.querySelector(".shadowBox")
     for(let i = 0; i<grades.length; i++) {
       sum = sum + grades[i]
     }
-    let average = (Math.floor((sum / grades.length) * 100) / 100)
-    let finalGrade
+    average = (Math.floor((sum / grades.length) * 100) / 100)
     if(average === 1) {
         pointsElement.style.color = "white"
         finalGrade = `${average} балл`
@@ -248,13 +254,29 @@ const shadowBox = document.querySelector(".shadowBox")
 
   function endGame () {
     if(round >= 5) {
+      let progressElement = document.createElement("div")
+      progressElement.classList.add("myProgress")
+      let progress = document.createElement("div")
+      progress.classList.add("myBar")
+      progress.innerHTML = "0%"
+      progressElement.appendChild(progress)
       let logoElement = document.createElement("img")
       logoElement.setAttribute("src", "/geo/geo/yandexGeoguesser/minsk-logo-220.png")
+      logoElement.classList.add("logo")
       let blackScreen1 = document.createElement("div")
       blackScreen1.appendChild(logoElement)
       let blackScreen2 = document.createElement("div")
+      blackScreen2.appendChild(progressElement)
       blackScreen1.classList.add("blackScreen1")
       blackScreen2.classList.add("blackScreen2")
+      let percentElement = document.createElement("h6")
+      let restartButton = document.createElement("span")
+      restartButton.classList.add("material-symbols-outlined")
+      restartButton.innerHTML = "restart_alt"
+      blackScreen1.appendChild(restartButton)
+      percentElement.classList.add("beautyFont")
+      percentElement.innerText = "Процент правильности ваших ответов составляет..."
+      blackScreen2.appendChild(percentElement)
       body.appendChild(blackScreen1)
       body.appendChild(blackScreen2)
       submitBtn.remove()
@@ -265,8 +287,17 @@ const shadowBox = document.querySelector(".shadowBox")
       mapElement.classList.remove("mapTouched")
       mapElement.classList.remove("mapNotTouched")
       mapElement.classList.add("mapEnd")
-    }
-  }
+      let widthEl = floatToInt(average)
+      move(widthEl)
+      restartButton.addEventListener("click", () => {
+        window.location.reload()
+      })
+      let notifications = Array.from(notificationContainer.querySelectorAll(".notification"))
+      for(let i = 0; i < notifications.length + 1; i++) {
+        notifications[i].remove()
+      }
+      
+    }}
 
   function createNotification(distance) {
     let notification = document.createElement("div")
@@ -285,9 +316,50 @@ const shadowBox = document.querySelector(".shadowBox")
     notificationContainer.appendChild(notification)
     setTimeout(() => {
       notification.remove()
-    }, 6000)
+    }, 15000)
   }
 
+  function move(widthUp) {
+    if (i == 0) {
+      i = 1;
+      let parent = document.querySelector(".myProgress")
+      let elem = parent.querySelector(".myBar");
+      let width = 0;
+      let id = setInterval(frame, 10);
+      function frame() {
+        if (width >= widthUp) {
+          clearInterval(id);
+          i = 0;
+        } else {
+          width++;
+          elem.style.width = width + "%";
+          elem.innerHTML = width + "%";
+        }
+      }
+    }
+  }
+
+  // 10
+  // 9
+  // 9.2
+  // 9.33
+
+  function floatToInt(num) {
+    let textNum = num.toString().length
+  if(textNum === 1) {
+    return num * 10
+  } else if(textNum === 2 || textNum === 3) {
+    while(num % 1 !== 0) {
+      num = num * 10
+  }
+  return num
+  } else if(textNum >= 4) {
+    while(num % 1 !== 0) {
+      num = num * 10
+  }
+    return parseInt(Math.round(num).toString().slice(0,2))
+    }
+  }  
   
   ymaps.ready(function () {
     // Для начала проверим, поддерживает ли плеер браузер пользователя.
@@ -339,10 +411,8 @@ const shadowBox = document.querySelector(".shadowBox")
                   
                   player.moveTo(getRandomCoords())
                     if(panoramas.length > 1) {
-                      console.log(panoramas.length)
                       player.moveTo(getRandomCoords())
                     } else {
-                      console.log(panoramas.length)
                       player.moveTo(getRandomCoords())
                       return
                     }

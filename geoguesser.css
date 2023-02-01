@@ -217,6 +217,7 @@ h4, h3 {
 }
 
 .blackScreen1 {
+  gap: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -237,6 +238,11 @@ h4, h3 {
   height: 25vh;
   width: 100vw;
   background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column-reverse;
+  gap: 5px;
 }
 
 .mapEnd {
@@ -315,7 +321,39 @@ h4, h3 {
   animation: flicker 1.5s infinite alternate; 
 }
 
+.myProgress {
+  width: 60%;
+  background-color: grey;
+}
 
+.myBar {
+  height: 30px;
+  background-color: #d63930;
+  text-align: center; /* To center it horizontally (if you want) */
+  line-height: 30px; /* To center it vertically */
+  color: white;
+  transition: 0.5s;
+}
+
+.beautyFont {
+  font-size: 25px;
+  font-family: "Roboto";
+  color: white;
+}
+
+.logo {
+  width: 20vw;
+}
+
+.blackScreen1 span {
+  color:#da2319;
+  font-size: 10vh;
+  transition: 0.4s;
+}
+
+.blackScreen1 span:hover {
+  color:#da4e46;
+}
 
 @keyframes moveDown {
   0% {transform: translate3d(0, -11vh, 0);}
