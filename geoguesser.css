@@ -114,37 +114,30 @@ body {
   color: rgb(255, 0, 0);
 }
 
-.button img {
-  width: 70%;
-  height: 70%;
-  border-radius: 50%;
-}
 
 
 
 .one img {
   transform: rotate(225deg);
-  /*background-position: 2px 6px;
+  background-position: 2px 6px;
   background-repeat: no-repeat;
   background-size: 25px;
-  background-image: url("/geo/geo/yandexGeoguesser/assets/arrow.png");*/
+  background-image: url("/assets/arrow.png");
 }
 
 .two {
   transform: rotate(45deg);
-  /*background-position: 2px 6px;
+  background-position: 2px 6px;
   background-repeat: no-repeat;
   background-size: 25px;
-  background-image: url("/geo/geo/yandexGeoguesser/assets/arrow.png");*/
+  background-image: url("/assets/arrow.png");
 }
 
 .three { 
-  padding: 0 0 0 2px;
-  /*
   background-position: 7px 5px;
   background-repeat: no-repeat;
   background-size: 19px;
-  background-image: url("/geo/geo/yandexGeoguesser/assets/pin2.png");*/
+  background-image: url("/assets/pin2.png");
 }
 */
 
