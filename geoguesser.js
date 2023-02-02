@@ -34,6 +34,7 @@ let round = 0
 let distance
 let coords
 let panoramaCoords
+let oldPanoramaCoords
 let isPin = false
 let notificationContainer = document.createElement("div")
     notificationContainer.classList.add("notificationContainer")
@@ -68,15 +69,19 @@ function init() {
             
         
          myPlacemark = new ymaps.Placemark(coords, {
-                  hintContent: 'Предположение'}, {
+                  hintContent: 'Предположение',
+                  iconContent: (round + 1)}, {
                 
-                  iconLayout: 'default#image',
+                  iconLayout: 'default#imageWithContent',
     
                   iconImageHref: 'assets/pin.png',
 
                   iconImageSize: [36, 36],
             
-                  iconImageOffset: [-19, -34]
+                  iconImageOffset: [-19, -34],
+
+                  iconContentOffset: [14, 5],
+                  
               }),
         
              
@@ -260,9 +265,9 @@ const shadowBox = document.querySelector(".shadowBox")
       progress.classList.add("myBar")
       progress.innerHTML = "0%"
       progressElement.appendChild(progress)
-      let logoElement = document.createElement("img")
-      logoElement.setAttribute("src", "/geo/geo/yandexGeoguesser/assets/minsk-logo-220.png")
-      logoElement.classList.add("logo")
+      let logoElement = document.querySelector(".logo")
+      console.log(logoElement)
+      logoElement.style.display = "block"
       let blackScreen1 = document.createElement("div")
       blackScreen1.appendChild(logoElement)
       let blackScreen2 = document.createElement("div")
@@ -395,12 +400,13 @@ const shadowBox = document.querySelector(".shadowBox")
               })     
               // Получаю координаты панорамы (т.е. в каком именно месте мы находимся прямо сейчас)
               player.events.add("panoramachange", (pan) => {
-                
+                oldPanoramaCoords = pan.originalEvent.target._engine._panorama._position.slice(0, 2).reverse()
                 panoramaCoords = pan.originalEvent.target._engine._panorama._position.slice(0, 2).reverse()
               })
   
               // Получаю координаты панорамы
               panoramaCoords = [panoramas[0]._position[0], panoramas[0]._position[1]].reverse()
+              oldPanoramaCoords = [panoramas[0]._position[0], panoramas[0]._position[1]].reverse()
 
 
               function panoramaMove() {
@@ -409,12 +415,13 @@ const shadowBox = document.querySelector(".shadowBox")
                   setTimeout(() => {
                   loader.style.zIndex = "0"  
                   }, 1000)
-                  
+                  while(panoramaCoords === [panoramas[0]._position[0], panoramas[0]._position[1]].reverse()) {
+                    player.moveTo(getRandomCoords())}
                   player.moveTo(getRandomCoords())
-                    if(panoramaCoords === coords) {
-                      player.moveTo(getRandomCoords())
+                    if(panoramaCoords === oldPanoramaCoords) {
+                      while(panoramaCoords === [panoramas[0]._position[0], panoramas[0]._position[1]].reverse()) {
+                      player.moveTo(getRandomCoords())}
                     } else {
-                      console.log("third");
                       player.moveTo(getRandomCoords())
                       return
                     }
@@ -430,11 +437,6 @@ const shadowBox = document.querySelector(".shadowBox")
     );
   
     function getRandomCoords () {
-      let leftTop = [53.945763, 27.460391]
-      let leftBottom = [53.849329, 27.460391]
-      let rightBottom = [53.849329, 27.654925]
-      let rightTop = [53.944513, 27.654925]
-  
       let randomCoordX = 53.849329 + Math.random() * (53.945763 + 0.00001 - 53.849329)
       let randomCoordY = 27.460391 + Math.random() * (27.654925 + 0.00001 - 27.460391)
   
